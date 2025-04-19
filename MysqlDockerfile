@@ -1,0 +1,4 @@
+FROM mysql:8.0
+COPY ./Migration/up.sql /docker-entrypoint-initdb.d/
+#RUN mysql -u user -p products_db < ./Migration/up.sql
+#CMD ["sleep", "infinity"]

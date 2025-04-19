@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ${MYSQL_HOST:-mysql}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-microservice_db}
+      MYSQL_USER: ${MYSQL_USER:-user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - microservice_network
+
+  # rabbitmq:
+    # image: rabbitmq:3-management
+    # container_name: ${RABBITMQ_HOST:-rabbitmq}
+    # restart: always
+    # environment:
+      # RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      # RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    # ports:
+      # - "${RABBITMQ_PORT:-5672}:5672"
+      # - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    # volumes:
+      # - rabbitmq_data:/var/lib/rabbitmq
+    # networks:
+      # - microservice_network
+
+networks:
+  microservice_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  #rabbitmq_data:

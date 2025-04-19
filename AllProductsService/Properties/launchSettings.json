@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AllProductsService": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
