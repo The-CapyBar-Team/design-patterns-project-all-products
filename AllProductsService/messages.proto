@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "AllProductsService.Protos";
+
+message ProductProto {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  int32 stock = 5;
+}
+
+message ProductListProto {
+  repeated ProductProto products = 1;
+}
+
+message AllProductsRequest {
+	bytes requestId = 1;
+}

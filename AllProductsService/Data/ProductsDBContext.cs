@@ -10,7 +10,7 @@ namespace AllProductsService.Data
 {
     public class ProductsDBContext : DbContext
     {
-        private DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         public ProductsDBContext(DbContextOptions<ProductsDBContext> options) : base(options) { }
 
