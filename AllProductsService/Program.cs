@@ -16,11 +16,13 @@ namespace AllProductsService
 
             using IHost host = CreateHostBuilder(args).Build();
 
+            //host.Services.GetRequiredService<GetAllProductsService>();
+
             // Migration
             await ApplyMigrationsAsync(host.Services);
 
             // Main Logic
-            await RunApplicationAsync(host.Services);
+            //await RunApplicationAsync(host.Services);
 
             await host.RunAsync();
         }
@@ -32,21 +34,24 @@ namespace AllProductsService
                     // Register DbContext
                     
                     var connectionString = Env.GetString("CONNECTION_STRING");
+                    Console.WriteLine(connectionString);
                     services.AddDbContext<ProductsDBContext>(options =>
                         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
                     // Register RabbitMQ service
                     services.AddSingleton<RabbitMQService>(_ =>
                     {
-                        var rabbitMQHost = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
-                        var rabbitMQPort = Environment.GetEnvironmentVariable("RABBITMQ_PORT");
-                        var rabbitMQUser = Environment.GetEnvironmentVariable("RABBITMQ_USER");
-                        var rabbitMQPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD");
+                        var rabbitMQHost = Env.GetString("RABBITMQ_HOST");
+                        var rabbitMQPort = Env.GetString("RABBITMQ_PORT");
+                        var rabbitMQUser = Env.GetString("RABBITMQ_USER");
+                        var rabbitMQPassword = Env.GetString("RABBITMQ_PASSWORD");
 
                         return new RabbitMQService(rabbitMQHost, rabbitMQPort, rabbitMQUser, rabbitMQPassword);
                     });
 
-                    services.AddScoped<GetAllProductsService>();
+                    services.AddHostedService<GetAllProductsService>();
+
+                    services.AddHostedService<StockService>();
 
                     //Register other services
                     // services.AddSingleton<IYourService, YourService>();
@@ -70,34 +75,34 @@ namespace AllProductsService
             }
         }
 
-        static async Task RunApplicationAsync(IServiceProvider serviceProvider)
-        {
-            using var scope = serviceProvider.CreateScope();
-            var services = scope.ServiceProvider;
+        //static async Task RunApplicationAsync(IServiceProvider serviceProvider)
+        //{
+        //    using var scope = serviceProvider.CreateScope();
+        //    var services = scope.ServiceProvider;
 
-            try
-            {
-                var rabbitMQService = services.GetRequiredService<RabbitMQService>();
+        //    try
+        //    {
+        //        var rabbitMQService = services.GetRequiredService<RabbitMQService>();
 
-                // Subscribe to RabbitMQ
-                rabbitMQService.SubscribeToQueue("your_queue_name", message =>
-                {
-                    // get message
-                    Console.WriteLine($"Got message: {message}");
+        //        // Subscribe to RabbitMQ
+        //        rabbitMQService.SubscribeToQueue("your_queue_name", message =>
+        //        {
+        //            // get message
+        //            Console.WriteLine($"Got message: {message}");
 
-                    // send message
-                    //rabbitMQService.SendMessage("response_queue", $"Answer for: {message}");
-                });
+        //            // send message
+        //            //rabbitMQService.SendMessage("response_queue", $"Answer for: {message}");
+        //        });
 
-                Console.WriteLine("Service is working, press any key to close");
-                Console.ReadKey();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-                throw;
-            }
-        }
+        //        Console.WriteLine("Service is working, press any key to close");
+        //        Console.ReadKey();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error: {ex.Message}");
+        //        throw;
+        //    }
+        //}
     }
 }
 

@@ -1,6 +1,7 @@
 ﻿using AllProductsService.Data;
 using AllProductsService.Protos;
 using Google.Protobuf;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AllProductsService.Services
 {
-    internal class GetAllProductsService
+    internal class GetAllProductsService : IHostedService
     {
         private RabbitMQService rabbitMQService;
         private ProductsDBContext dbContext;
@@ -17,18 +18,29 @@ namespace AllProductsService.Services
         { 
             this.rabbitMQService = rabbitMQService;
             this.dbContext = dbContext;
-            SetupQueues();
         }
 
-        private async Task SetupQueues()
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            await rabbitMQService.DeclareQueue("AllproductsRequests");
-            await rabbitMQService.DeclareQueue("AllproductsResponses");
+            rabbitMQService.DeclareQueue("AllproductsRequests").GetAwaiter().GetResult();
+            rabbitMQService.DeclareQueue("AllproductsResponses").GetAwaiter().GetResult();
+            rabbitMQService.DeclareQueue("AllproductsResponses").GetAwaiter().GetResult();
+
+            var productStockList = new ProductStockList();
+            productStockList.Products.AddRange(dbContext.Products.Select(product => 
+                new ProductStockInfo 
+                { 
+                    ProductId = product.Id, 
+                    StockChange = (uint)product.Stock
+                }));
+
+            rabbitMQService.SendMessage("ProductStockLists", productStockList.ToByteArray()).GetAwaiter().GetResult();
 
             rabbitMQService.SubscribeToQueue("AllproductsRequests", async response =>
             {
                 AllProductsRequest request = AllProductsRequest.Parser.ParseFrom(response);
-                ProductListProto productList = new ProductListProto();
+                var id = request.RequestId;
+                var productList = new AllProductsResponse();
                 foreach (var product in dbContext.Products)
                 {
                     productList.Products.Add(new ProductProto
@@ -37,12 +49,18 @@ namespace AllProductsService.Services
                         Name = product.Name,
                         Description = product.Description,
                         Price = product.Price,
-                        Stock = product.Stock
+                        Stock = (uint)product.Stock
                     });
                 }
+                productList.RequestId = id;
                 await rabbitMQService.SendMessage("AllproductsResponses", productList.ToByteArray());
             });
-                
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

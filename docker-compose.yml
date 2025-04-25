@@ -19,20 +19,20 @@ services:
     networks:
       - microservice_network
 
-  # rabbitmq:
-    # image: rabbitmq:3-management
-    # container_name: ${RABBITMQ_HOST:-rabbitmq}
-    # restart: always
-    # environment:
-      # RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
-      # RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
-    # ports:
-      # - "${RABBITMQ_PORT:-5672}:5672"
-      # - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
-    # volumes:
-      # - rabbitmq_data:/var/lib/rabbitmq
-    # networks:
-      # - microservice_network
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ${RABBITMQ_HOST:-rabbitmq}
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - microservice_network
 
 networks:
   microservice_network:
@@ -40,4 +40,4 @@ networks:
 
 volumes:
   mysql_data:
-  #rabbitmq_data:
+  rabbitmq_data:
