@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   mysql:
-    build: 
+    build:
         context: .
         dockerfile: MysqlDockerfile
     container_name: ${MYSQL_HOST:-mysql}
@@ -33,6 +31,32 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - microservice_network
+
+  all_products:
+    build:
+      dockerfile: ./AllProductsService/Dockerfile
+      context: .
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=microservice_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=rootpassword
+
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_MANAGEMENT_PORT=15672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+
+      - CONNECTION_STRING=Server=mysql;Port=3306;Database=microservice_db;User=user;Password=password;
+    restart: always
+    networks:
+      - microservice_network
+    depends_on:
+      - mysql
+      - rabbitmq
 
 networks:
   microservice_network:
