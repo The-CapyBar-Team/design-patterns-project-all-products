@@ -27,6 +27,7 @@ namespace AllProductsService.Services
             rabbitMQService.DeclareQueue("DecreaseStockRequests").GetAwaiter().GetResult();
             rabbitMQService.DeclareQueue("AddProductDBRequests").GetAwaiter().GetResult();
             rabbitMQService.DeclareQueue("UpdateProductDBRequests").GetAwaiter().GetResult();
+            rabbitMQService.DeclareQueue("ProductStockLists").GetAwaiter().GetResult();
 
             rabbitMQService.SubscribeToQueue("AddProductDBRequests", async message =>
             {
@@ -46,7 +47,10 @@ namespace AllProductsService.Services
                     ProductId = protoProduct.Id,
                     StockChange = (uint)product.Stock,
                 };
-                await rabbitMQService.SendMessage("ProductStockInfos", productStockChange.ToByteArray());
+
+                var productStockList = new ProductStockList();
+                productStockList.Products.Add(productStockChange);
+                await rabbitMQService.SendMessage("ProductStockLists", productStockList.ToByteArray());
             });
 
             rabbitMQService.SubscribeToQueue("UpdateProductDBRequests", async message =>
@@ -71,7 +75,9 @@ namespace AllProductsService.Services
                         ProductId = protoProduct.Id,
                         StockChange = stockChange,
                     };
-                    await rabbitMQService.SendMessage("ProductStockInfos", productStockChange.ToByteArray());
+                    var productStockList = new ProductStockList();
+                    productStockList.Products.Add(productStockChange);
+                    await rabbitMQService.SendMessage("ProductStockLists", productStockList.ToByteArray());
                 }
             });
 
