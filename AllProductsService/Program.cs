@@ -36,7 +36,9 @@ namespace AllProductsService
                     var connectionString = Env.GetString("CONNECTION_STRING");
                     Console.WriteLine(connectionString);
                     services.AddDbContext<ProductsDBContext>(options =>
-                        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+                        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), 
+                        ServiceLifetime.Singleton, 
+                        ServiceLifetime.Singleton);
 
                     // Register RabbitMQ service
                     services.AddSingleton<RabbitMQService>(_ =>

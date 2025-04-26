@@ -72,10 +72,14 @@ namespace AllProductsService.Services
             {
                 var decreaseStockRequest = DecreaseStockRequest.Parser.ParseFrom(message);
                 var product = dbContext.Products.FirstOrDefault(product => product.Id == decreaseStockRequest.ProductId);
+                
                 if (product != null)
                 {
                     product.Stock--;
+                    var newReceipt = new Receipt { ProductId = decreaseStockRequest.ProductId, UserId = decreaseStockRequest.UserId };
+                    dbContext.Receipts.Add(newReceipt);
                     dbContext.SaveChanges();
+
                 }
             });
             return Task.CompletedTask;
