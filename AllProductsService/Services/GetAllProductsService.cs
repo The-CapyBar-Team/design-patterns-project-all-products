@@ -24,7 +24,7 @@ namespace AllProductsService.Services
         {
             rabbitMQService.DeclareQueue("AllproductsRequests").GetAwaiter().GetResult();
             rabbitMQService.DeclareQueue("AllproductsResponses").GetAwaiter().GetResult();
-            rabbitMQService.DeclareQueue("AllproductsResponses").GetAwaiter().GetResult();
+            rabbitMQService.DeclareQueue("ProductStockLists").GetAwaiter().GetResult();
 
             var productStockList = new ProductStockList();
             productStockList.Products.AddRange(dbContext.Products.Select(product => 
