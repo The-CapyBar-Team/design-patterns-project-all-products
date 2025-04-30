@@ -421,7 +421,8 @@ namespace AllProductsService.Protos {
   }
 
   /// <summary>
-  /// AllProductsService -> BasketLoadBalancer
+  /// AllProductsService -> BasketLoadBalancer (when the stock of product has changed)
+  /// ProductStockLists
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ProductStockList : pb::IMessage<ProductStockList>
@@ -610,9 +611,6 @@ namespace AllProductsService.Protos {
 
   }
 
-  /// <summary>
-  /// AllProductsService -> BasketLoadBalancer (when the stock of product has changed)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ProductStockInfo : pb::IMessage<ProductStockInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -1277,7 +1275,8 @@ namespace AllProductsService.Protos {
   }
 
   /// <summary>
-  /// APIGateway -> BasketLoadBalancer 
+  /// APIGateway -> BasketLoadBalancer
+  /// AddToCartRequests
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class AddToCartRequest : pb::IMessage<AddToCartRequest>
@@ -1516,6 +1515,7 @@ namespace AllProductsService.Protos {
 
   /// <summary>
   /// APIGateway -> BasketLoadBalancer
+  /// RemoveFromCartRequests
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RemoveFromCartRequest : pb::IMessage<RemoveFromCartRequest>
@@ -1754,6 +1754,7 @@ namespace AllProductsService.Protos {
 
   /// <summary>
   /// BasketLoadBalancer -> APIGateway (when queue position is changed in the basketService and we need to noify the user)
+  /// QueuePositionUpdates
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class QueuePositionUpdateMessage : pb::IMessage<QueuePositionUpdateMessage>
@@ -2001,6 +2002,7 @@ namespace AllProductsService.Protos {
 
   /// <summary>
   /// BasketLoadBalancer -> APIGateway (when timer of product holding has run out and we need to noify the user)
+  /// LostProducts
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class LostProduct : pb::IMessage<LostProduct>
@@ -2239,6 +2241,7 @@ namespace AllProductsService.Protos {
 
   /// <summary>
   /// APIGateway -> BasketLoadBalancer (when user wants to check the status of the product)
+  /// ProductStatusRequests
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ProductsStatusRequest : pb::IMessage<ProductsStatusRequest>
@@ -2664,6 +2667,7 @@ namespace AllProductsService.Protos {
 
   /// <summary>
   /// BasketLoadBalancer -> APIGateway (when product status has been updated while user was away)
+  /// ProductStatusUpdates
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ProductStatusUpdate : pb::IMessage<ProductStatusUpdate>

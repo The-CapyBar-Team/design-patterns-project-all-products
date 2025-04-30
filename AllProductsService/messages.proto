@@ -10,12 +10,12 @@ message ProductProto {
   uint32 stock = 5;
 }
 
-// AllProductsService -> BasketLoadBalancer
+// AllProductsService -> BasketLoadBalancer (when the stock of product has changed)
+// ProductStockLists
 message ProductStockList {
   repeated ProductStockInfo products = 1;
 }
 
-// AllProductsService -> BasketLoadBalancer (when the stock of product has changed)
 message ProductStockInfo {
 	int32 productId = 1;
 	uint32 stockChange = 2;
@@ -32,31 +32,36 @@ message AllProductsRequest {
 	string requestId = 1;
 }
 
-// APIGateway -> BasketLoadBalancer 
+// APIGateway -> BasketLoadBalancer
+// AddToCartRequests
 message AddToCartRequest {
 	string userId = 1;
 	int32 productId = 2;
 }
 
 // APIGateway -> BasketLoadBalancer
+// RemoveFromCartRequests
 message RemoveFromCartRequest {
 	string userId = 1;
 	int32 productId = 2;
 }
 
 // BasketLoadBalancer -> APIGateway (when queue position is changed in the basketService and we need to noify the user)
+// QueuePositionUpdates
 message QueuePositionUpdateMessage {
 	string userId = 1;
 	QueuePositionUpdate updateMessage = 2;
 }
 
 // BasketLoadBalancer -> APIGateway (when timer of product holding has run out and we need to noify the user)
+// LostProducts
 message LostProduct {
 	string userId = 1;
 	int32 productId = 2;
 }
 
 // APIGateway -> BasketLoadBalancer (when user wants to check the status of the product)
+// ProductStatusRequests
 message ProductsStatusRequest {
 	repeated ProductStatusRequest statusRequests = 1;
 }
@@ -66,6 +71,7 @@ message ProductStatusRequest {
 }
 
 // BasketLoadBalancer -> APIGateway (when product status has been updated while user was away)
+// ProductStatusUpdates
 message ProductStatusUpdate {
 	string userId = 1;
 	repeated QueuePositionUpdate newQueuePositions = 2;

@@ -16,10 +16,12 @@ namespace AllProductsService.Services
     {
         private RabbitMQService rabbitMQService;
         private ProductsDBContext dbContext;
-        public StockService(RabbitMQService rabbitMQService, ProductsDBContext dbContext) 
+        private ProductsCacheService productsCacheService;
+        public StockService(RabbitMQService rabbitMQService, ProductsDBContext dbContext, ProductsCacheService productsCacheService) 
         {
             this.rabbitMQService = rabbitMQService;
             this.dbContext = dbContext;
+            this.productsCacheService = productsCacheService;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -41,6 +43,7 @@ namespace AllProductsService.Services
                 };
                 dbContext.Products.Add(product);
                 dbContext.SaveChanges();
+                productsCacheService.InvalidateCache();
 
                 var productStockChange = new ProductStockInfo()
                 {
@@ -56,8 +59,8 @@ namespace AllProductsService.Services
             rabbitMQService.SubscribeToQueue("UpdateProductDBRequests", async message =>
             {
                 var protoProduct = ProductProto.Parser.ParseFrom(message);
-
-                var product = dbContext.Products.FirstOrDefault(p => p.Id == protoProduct.Id);
+                var product = dbContext.Products.Find(protoProduct.Id);
+                //var product = dbContext.Products.FirstOrDefault(p => p.Id == protoProduct.Id);
 
                 if (product != null)
                 {
@@ -69,6 +72,7 @@ namespace AllProductsService.Services
 
                     product.Stock = (int)protoProduct.Stock;
                     dbContext.SaveChanges();
+                    productsCacheService.InvalidateCache();
 
                     var productStockChange = new ProductStockInfo()
                     {
@@ -84,7 +88,8 @@ namespace AllProductsService.Services
             rabbitMQService.SubscribeToQueue("DecreaseStockRequests", message =>
             {
                 var decreaseStockRequest = DecreaseStockRequest.Parser.ParseFrom(message);
-                var product = dbContext.Products.FirstOrDefault(product => product.Id == decreaseStockRequest.ProductId);
+                var product = dbContext.Products.Find(decreaseStockRequest.ProductId);
+                //var product = dbContext.Products.FirstOrDefault(product => product.Id == decreaseStockRequest.ProductId);
                 
                 if (product != null)
                 {
@@ -92,7 +97,7 @@ namespace AllProductsService.Services
                     var newReceipt = new Receipt { ProductId = decreaseStockRequest.ProductId, UserId = decreaseStockRequest.UserId };
                     dbContext.Receipts.Add(newReceipt);
                     dbContext.SaveChanges();
-
+                    productsCacheService.InvalidateCache();
                 }
             });
             return Task.CompletedTask;

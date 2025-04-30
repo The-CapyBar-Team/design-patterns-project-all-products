@@ -51,6 +51,8 @@ namespace AllProductsService
                         return new RabbitMQService(rabbitMQHost, rabbitMQPort, rabbitMQUser, rabbitMQPassword);
                     });
 
+                    services.AddSingleton<ProductsCacheService>();
+
                     services.AddHostedService<GetAllProductsService>();
 
                     services.AddHostedService<StockService>();

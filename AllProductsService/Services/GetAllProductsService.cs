@@ -1,4 +1,5 @@
 ﻿using AllProductsService.Data;
+using AllProductsService.Models.Entities;
 using AllProductsService.Protos;
 using Google.Protobuf;
 using Microsoft.Extensions.Hosting;
@@ -14,10 +15,14 @@ namespace AllProductsService.Services
     {
         private RabbitMQService rabbitMQService;
         private ProductsDBContext dbContext;
-        public GetAllProductsService(RabbitMQService rabbitMQService, ProductsDBContext dbContext)
+        private ProductsCacheService productsCacheService;
+
+        public bool CacheIsValid {  get; private set; }
+        public GetAllProductsService(RabbitMQService rabbitMQService, ProductsDBContext dbContext, ProductsCacheService productsCacheService)
         { 
             this.rabbitMQService = rabbitMQService;
             this.dbContext = dbContext;
+            this.productsCacheService = productsCacheService;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -41,7 +46,8 @@ namespace AllProductsService.Services
                 AllProductsRequest request = AllProductsRequest.Parser.ParseFrom(response);
                 var id = request.RequestId;
                 var productList = new AllProductsResponse();
-                foreach (var product in dbContext.Products)
+                var products = productsCacheService.Products;
+                foreach (var product in products)
                 {
                     productList.Products.Add(new ProductProto
                     {
